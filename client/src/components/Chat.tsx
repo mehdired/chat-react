@@ -6,18 +6,28 @@ type ChatProps = {
 	username: string
 }
 
+type Message = {
+	username: string
+	message: string
+}
+
 export default function Chat({ socket, username }: ChatProps) {
 	const [input, setInput] = useState('')
-	const [response, setResponse] = useState<String[]>([])
+	const [response, setResponse] = useState<Message[]>([])
 
 	useEffect(() => {
-		socket.on('append message', (message: string) => {
+		socket.on('previous messages', (historyMessage: Message[]) => {
+			setResponse(historyMessage)
+		})
+
+		socket.on('append message', (message: Message) => {
 			setResponse((previousState) => {
 				return [...previousState, message]
 			})
 		})
 
 		return () => {
+			socket.off('previous messages')
 			socket.off('append message')
 		}
 	}, [])
@@ -26,20 +36,21 @@ export default function Chat({ socket, username }: ChatProps) {
 		event.preventDefault()
 		if (!input) return
 
-		socket.emit('chat message', input)
+		socket.emit('chat message', { username, message: input })
 		setInput('')
 	}
 
 	const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
 		setInput(event.target.value)
 	}
+
 	return (
 		<>
 			<ul className="chat-messages">
-				{response.map((message, index) => (
+				{response.map((data, index) => (
 					<li key={index}>
-						<span>{username} : </span>
-						<p>{message}</p>
+						<span>{data.username} : </span>
+						<p>{data.message}</p>
 					</li>
 				))}
 			</ul>

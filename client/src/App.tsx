@@ -11,16 +11,12 @@ export default function App() {
 	const [showChat, setShowChat] = useState(false)
 	const socket = useRef<Socket>(io(ENDPOINT))
 
-	/* useEffect(() => {
-		socket.current = io(ENDPOINT)
-	}, []) */
-
 	const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
 		event.preventDefault()
 
 		if (!username || !room) return
 
-		socket.current?.emit('join room', { room, username })
+		socket.current?.emit('join room', room)
 		setShowChat(true)
 	}
 

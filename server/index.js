@@ -14,11 +14,18 @@ app.get('/', (req, res) => {
 	res.sendFile(__dirname + '/index.html')
 })
 
+const historyMessage = []
+
 io.on('connection', (socket) => {
 	socket.on('join room', (room) => {
 		socket.join(room)
 
+		historyMessage[room] = historyMessage[room] || []
+
+		io.in(room).emit('previous messages', historyMessage[room])
+
 		socket.on('chat message', (message) => {
+			historyMessage[room].push(message)
 			io.in(room).emit('append message', message)
 		})
 	})
