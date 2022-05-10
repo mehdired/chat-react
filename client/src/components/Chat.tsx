@@ -1,28 +1,36 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, FormEvent, ChangeEvent } from 'react'
+import { Socket } from 'socket.io-client'
 
-export default function Chat({ socket, username }) {
+type ChatProps = {
+	socket: Socket
+	username: string
+}
+
+export default function Chat({ socket, username }: ChatProps) {
 	const [input, setInput] = useState('')
-	const [response, setResponse] = useState([])
+	const [response, setResponse] = useState<String[]>([])
 
 	useEffect(() => {
-		socket.current.on('append message', (message) => {
+		socket.on('append message', (message: string) => {
 			setResponse((previousState) => {
 				return [...previousState, message]
 			})
 		})
 
-		return () => socket.current.off('append message')
+		return () => {
+			socket.off('append message')
+		}
 	}, [])
 
-	const handleSubmit = (event) => {
+	const handleSubmit = (event: FormEvent) => {
 		event.preventDefault()
 		if (!input) return
 
-		socket.current.emit('chat message', input)
+		socket.emit('chat message', input)
 		setInput('')
 	}
 
-	const handleChange = (event) => {
+	const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
 		setInput(event.target.value)
 	}
 	return (

@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
-import { io } from 'socket.io-client'
+import { useState, useEffect, useRef, FormEvent } from 'react'
+import { io, Socket } from 'socket.io-client'
 
 import Chat from './components/Chat'
 
@@ -9,20 +9,21 @@ export default function App() {
 	const [username, setUsername] = useState('')
 	const [room, setRoom] = useState('')
 	const [showChat, setShowChat] = useState(false)
-	const socket = useRef()
+	const socket = useRef<Socket>(io(ENDPOINT))
 
-	useEffect(() => {
+	/* useEffect(() => {
 		socket.current = io(ENDPOINT)
-	}, [])
+	}, []) */
 
-	const handleSubmit = (event) => {
+	const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
 		event.preventDefault()
 
 		if (!username || !room) return
 
-		socket.current.emit('join room', { room, username })
+		socket.current?.emit('join room', { room, username })
 		setShowChat(true)
 	}
+
 	return (
 		<div className="app">
 			{!showChat ? (
@@ -52,7 +53,7 @@ export default function App() {
 					</form>
 				</div>
 			) : (
-				<Chat socket={socket} username={username} />
+				<Chat socket={socket.current} username={username} />
 			)}
 		</div>
 	)

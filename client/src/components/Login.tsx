@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react'
+import { FormEvent, useEffect, useState } from 'react'
 
 export default function Login() {
 	const [username, setUsername] = useState('')
 	const [room, setRoom] = useState('')
 
-	const handleSubmit = (event) => {
+	const handleSubmit = (event: FormEvent) => {
 		event.preventDefault()
 
 		if (!username && !room) return
